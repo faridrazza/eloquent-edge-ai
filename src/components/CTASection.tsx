@@ -46,7 +46,12 @@ const CTASection = () => {
           
           {/* CTA Button */}
           <div className="space-y-4">
-            <Button variant="premium" size="lg" className="text-lg px-12 py-6 h-auto group">
+            <Button 
+              variant="premium" 
+              size="lg" 
+              className="text-lg px-12 py-6 h-auto group"
+              onClick={() => window.location.href = "/auth"}
+            >
               Start Creating Content Now
               <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
             </Button>

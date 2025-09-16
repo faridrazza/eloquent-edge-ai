@@ -14,7 +14,162 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      generated_posts: {
+        Row: {
+          created_at: string
+          generated_content: string
+          id: string
+          original_prompt: string
+          post_structure: string | null
+          updated_at: string
+          user_id: string
+          visual_count: number | null
+          visual_style: string | null
+        }
+        Insert: {
+          created_at?: string
+          generated_content: string
+          id?: string
+          original_prompt: string
+          post_structure?: string | null
+          updated_at?: string
+          user_id: string
+          visual_count?: number | null
+          visual_style?: string | null
+        }
+        Update: {
+          created_at?: string
+          generated_content?: string
+          id?: string
+          original_prompt?: string
+          post_structure?: string | null
+          updated_at?: string
+          user_id?: string
+          visual_count?: number | null
+          visual_style?: string | null
+        }
+        Relationships: []
+      }
+      generated_visuals: {
+        Row: {
+          created_at: string
+          generation_order: number | null
+          id: string
+          image_url: string | null
+          post_id: string
+          prompt_used: string | null
+          status: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          generation_order?: number | null
+          id?: string
+          image_url?: string | null
+          post_id: string
+          prompt_used?: string | null
+          status?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          generation_order?: number | null
+          id?: string
+          image_url?: string | null
+          post_id?: string
+          prompt_used?: string | null
+          status?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          credits_remaining: number | null
+          email: string | null
+          full_name: string | null
+          id: string
+          subscription_status: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          credits_remaining?: number | null
+          email?: string | null
+          full_name?: string | null
+          id?: string
+          subscription_status?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          credits_remaining?: number | null
+          email?: string | null
+          full_name?: string | null
+          id?: string
+          subscription_status?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      usage_tracking: {
+        Row: {
+          action_type: string
+          created_at: string
+          credits_used: number
+          id: string
+          user_id: string
+        }
+        Insert: {
+          action_type: string
+          created_at?: string
+          credits_used: number
+          id?: string
+          user_id: string
+        }
+        Update: {
+          action_type?: string
+          created_at?: string
+          credits_used?: number
+          id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_styles: {
+        Row: {
+          confidence_score: number | null
+          created_at: string
+          id: string
+          last_updated: string
+          posts_analyzed: number | null
+          style_data: Json | null
+          user_id: string
+        }
+        Insert: {
+          confidence_score?: number | null
+          created_at?: string
+          id?: string
+          last_updated?: string
+          posts_analyzed?: number | null
+          style_data?: Json | null
+          user_id: string
+        }
+        Update: {
+          confidence_score?: number | null
+          created_at?: string
+          id?: string
+          last_updated?: string
+          posts_analyzed?: number | null
+          style_data?: Json | null
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
