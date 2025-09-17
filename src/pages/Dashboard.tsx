@@ -5,7 +5,7 @@ import { Separator } from "@/components/ui/separator";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { toast } from "@/hooks/use-toast";
-import { Linkedin, Plus, LogOut, User as UserIcon, CreditCard, FileText, Settings, Palette, CheckCircle, AlertCircle } from "lucide-react";
+import { Linkedin, Plus, LogOut, User as UserIcon, CreditCard, FileText, Settings, Palette, CheckCircle, AlertCircle, Brush } from "lucide-react";
 import { useWritingStyle } from "@/hooks/use-writing-style";
 import WritingStyleModal from "@/components/WritingStyleModal";
 import type { User } from "@supabase/supabase-js";
@@ -142,6 +142,14 @@ const Dashboard = () => {
                     >
                       <Plus className="w-4 h-4 mr-3" />
                       Create New Post
+                    </Button>
+                    <Button 
+                      variant="ghost" 
+                      className="w-full justify-start" 
+                      onClick={() => navigate("/visual-canvas")}
+                    >
+                      <Brush className="w-4 h-4 mr-3" />
+                      Visual Canvas
                     </Button>
                     <Button 
                       variant="ghost" 

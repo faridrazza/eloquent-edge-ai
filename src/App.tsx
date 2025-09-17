@@ -11,6 +11,7 @@ import Onboarding from "./pages/Onboarding";
 import PostGeneration from "./pages/PostGeneration";
 import VisualStrategy from "./pages/VisualStrategy";
 import VisualGeneration from "./pages/VisualGeneration";
+import VisualCanvas from "./pages/VisualCanvas";
 import PreviewDownload from "./pages/PreviewDownload";
 import MyPosts from "./pages/MyPosts";
 import NotFound from "./pages/NotFound";
@@ -32,6 +33,7 @@ const App = () => (
             <Route path="/post-generation" element={<PostGeneration />} />
             <Route path="/visual-strategy" element={<VisualStrategy />} />
             <Route path="/visual-generation" element={<VisualGeneration />} />
+            <Route path="/visual-canvas" element={<VisualCanvas />} />
             <Route path="/preview-download" element={<PreviewDownload />} />
             <Route path="/my-posts" element={<MyPosts />} />
             <Route path="*" element={<NotFound />} />

@@ -31,3 +31,6 @@ verify_jwt = true
 
 [functions.generate-visuals]
 verify_jwt = true
+
+[functions.generate-visual-canvas]
+verify_jwt = true

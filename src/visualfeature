@@ -1,0 +1,287 @@
+Visual Canvas Feature - Development Specification
+Feature Overview
+Add a standalone visual generation feature to the dashboard that provides users with a canvas-based interface for creating and editing images using Google's Gemini 2.5 Flash Image (Nano Banana) API.
+
+Google Gemini 2.5 Flash Image (Nano Banana) Research Summary
+What is Nano Banana?
+Gemini 2.5 Flash Image (nicknamed "Nano Banana") is Google's state-of-the-art image generation model that can generate and process images conversationally, allowing users to create, edit, and iterate on visuals with unprecedented control.
+Core Capabilities:
+
+Text-to-Image: Generate high-quality images from simple or complex text descriptions
+Image + Text-to-Image (Editing): Provide an image and use text prompts to add, remove, or modify elements, change the style, or adjust the color grading
+Multi-Image to Image: Use multiple input images to compose a new scene or transfer the style from one image to another
+Iterative Refinement: Engage in a conversation to progressively refine your image over multiple turns, making small adjustments until it's perfect
+High-Fidelity Text Rendering: Accurately generate images that contain legible and well-placed text, ideal for logos, diagrams, and posters
+
+Key Advantages:
+
+Conversational editing: Tell the model what to change
+Precise image editing (local edits, multi-image fusion, consistent character preservation across edits)
+Preserve character consistency across edits, fuse multiple input images, and perform fine, localized edits through natural-language prompts
+
+
+Dashboard Integration
+Navigation Update
+Current Dashboard Sidebar:
+┌─────────────────────────────────┐
+│ 📝 Create New Post              │
+│ 📊 My Generated Posts           │
+│ 🎨 Writing Style (Optional)     │
+│ ⚙️  Settings                    │
+│ 💳 Credits: 25 remaining        │
+└─────────────────────────────────┘
+
+Updated Dashboard Sidebar:
+┌─────────────────────────────────┐
+│ 📝 Create New Post              │
+│ 🖼️  Visual Canvas              │ ← NEW FEATURE
+│ 📊 My Generated Posts           │
+│ 🎨 Writing Style (Optional)     │
+│ ⚙️  Settings                    │
+│ 💳 Credits: 25 remaining        │
+└─────────────────────────────────┘
+
+Visual Canvas Page Specification
+Page Layout
+┌─────────────────────────────────────────────────────────────────┐
+│ Header: Visual Canvas | [Save Project] [New Canvas] [Gallery]   │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│ Left Sidebar (30%)              │ Main Canvas Area (70%)        │
+│ ┌─────────────────────────────┐ │ ┌───────────────────────────┐ │
+│ │ Chat Interface              │ │ │                           │ │
+│ │                             │ │ │   Generated Image         │ │
+│ │ [Reference Images Upload]   │ │ │   Display Area            │ │
+│ │                             │ │ │                           │ │
+│ │ Chat History:               │ │ │                           │ │
+│ │ • User: "Create logo..."    │ │ │                           │ │
+│ │ • AI: "Generated image"     │ │ │                           │ │
+│ │ • User: "Make it blue"      │ │ │                           │ │
+│ │                             │ │ │                           │ │
+│ │ [Text Input Field]          │ │ │ [Download] [Edit] [Share] │ │
+│ │ [Send] [Upload Image]       │ │ └───────────────────────────┘ │
+│ └─────────────────────────────┘ │                               │
+└─────────────────────────────────────────────────────────────────┘
+Core Components
+1. Chat Interface (Left Sidebar)
+Features Required:
+- Text input field for prompts
+- File upload button for reference images
+- Chat history display showing conversation flow
+- Image thumbnail previews in chat
+- Clear chat button
+- Copy prompt to clipboard functionality
+2. Reference Image Upload System
+Supported Features:
+- Multiple image upload (drag & drop + click to browse)
+- Image preview thumbnails
+- Remove individual images
+- Image format validation (JPG, PNG, WebP)
+- File size limits (max 10MB per image)
+- Preview selected images before sending to API
+3. Main Canvas Area
+Display Features:
+- Generated image preview (responsive sizing)
+- Zoom in/out controls
+- Full-screen view option
+- Image download (PNG/JPG options)
+- Share generated image functionality
+- Loading states during generation
+- Error handling display
+
+Gemini API Integration Specifications
+API Endpoints to Implement
+Text-to-Image Generation
+Endpoint: Gemini 2.5 Flash Image API
+Model: gemini-2.5-flash-image-preview
+
+Request Structure:
+{
+  "model": "gemini-2.5-flash-image-preview",
+  "contents": [
+    {
+      "parts": [
+        {
+          "text": "User prompt for image generation"
+        }
+      ]
+    }
+  ]
+}
+Image + Text Editing
+Request Structure:
+{
+  "model": "gemini-2.5-flash-image-preview",
+  "contents": [
+    {
+      "parts": [
+        {
+          "inline_data": {
+            "mime_type": "image/jpeg",
+            "data": "base64_encoded_image_data"
+          }
+        },
+        {
+          "text": "Edit this image by changing..."
+        }
+      ]
+    }
+  ]
+}
+Multi-Image Composition
+Request Structure:
+{
+  "model": "gemini-2.5-flash-image-preview",
+  "contents": [
+    {
+      "parts": [
+        {
+          "inline_data": {
+            "mime_type": "image/jpeg",
+            "data": "base64_image_1"
+          }
+        },
+        {
+          "inline_data": {
+            "mime_type": "image/png",
+            "data": "base64_image_2"
+          }
+        },
+        {
+          "text": "Combine these images to create..."
+        }
+      ]
+    }
+  ]
+}
+Conversation Management
+Backend Requirements:
+- Store conversation history per user session
+- Maintain image references for iterative editing
+- Track API usage and costs
+- Implement conversation contexts for multi-turn interactions
+
+User Experience Flow
+1. Initial Canvas Entry
+User clicks "Visual Canvas" in dashboard
+↓
+New page loads with empty canvas
+↓
+Welcome message: "Start creating visuals with AI!"
+↓
+Input placeholder: "Describe what you want to create..."
+2. Text-to-Image Generation
+User types: "Create a minimalist logo for a tech startup"
+↓
+Click Send button
+↓
+Loading state: "AI is generating your image..."
+↓
+Generated image appears in canvas area
+↓
+Chat shows: User prompt + Generated image thumbnail
+3. Iterative Editing Flow
+User types: "Make the logo blue and add the text 'PostCraft'"
+↓
+API processes current image + new instructions
+↓
+Updated image generates and replaces previous version
+↓
+Chat history shows: Previous image → Edit request → New image
+↓
+User can continue refining: "Make the font bolder"
+4. Reference Image Workflow
+User uploads reference image (company logo)
+↓
+User types: "Create a LinkedIn banner in the same style as this logo"
+↓
+API analyzes reference image + generates new content
+↓
+User can iterate: "Change background to gradient"
+5. Multi-Image Composition
+User uploads 2 images: product photo + background scene
+↓
+User types: "Place this product in this environment"
+↓
+API composes images into single result
+↓
+User refines: "Adjust lighting to match the scene"
+
+Technical Implementation Requirements
+Frontend Development
+React Components Needed:
+1. VisualCanvas.jsx (main page component)
+2. ChatInterface.jsx (left sidebar chat)
+3. ImageCanvas.jsx (main display area)
+4. ImageUpload.jsx (reference image handling)
+5. ConversationHistory.jsx (chat message display)
+6. LoadingStates.jsx (generation progress)
+7. ImageControls.jsx (download, share, edit buttons)
+State Management:
+Canvas State:
+- currentImage: Base64 image data
+- conversationHistory: Array of messages
+- referenceImages: Array of uploaded images
+- isGenerating: Boolean loading state
+- apiCredits: Remaining credits count
+- error: Error messages
+File Handling:
+Image Upload Features:
+- Drag and drop interface
+- Multiple file selection
+- Image compression for API efficiency
+- Base64 encoding for API requests
+- File validation (type, size limits)
+Backend API Endpoints
+Canvas Management:
+POST /api/visual-canvas/generate
+- Handle text-to-image requests
+- Process image + text editing
+- Manage multi-image composition
+
+POST /api/visual-canvas/upload-reference
+- Handle reference image uploads
+- Validate and process images
+- Store temporarily for session
+
+GET /api/visual-canvas/conversation/:sessionId
+- Retrieve conversation history
+- Load previous images for editing
+
+POST /api/visual-canvas/save-project
+- Save canvas projects for later access
+- Store conversation and images
+
+Credit Management:
+GET /api/visual-canvas/credits
+- Check remaining API credits
+- Calculate generation costs
+
+POST /api/visual-canvas/estimate-cost
+- Preview credit cost before generation
+Database Schema
+sqlVisual_Projects Table:
+- id (primary key)
+- user_id (foreign key)
+- project_name
+- conversation_data (JSON)
+- final_image_url
+- created_at
+- updated_at
+
+Visual_Generations Table:
+- id (primary key)
+- project_id (foreign key)
+- prompt_text
+- reference_images (JSON array)
+- generated_image_url
+- api_response_data (JSON)
+- credits_used
+- generation_time
+- created_at
+
+User_Canvas_Credits Table:
+- user_id (foreign key)
+- credits_remaining
+- credits_used_today
+- last_credit_refresh
