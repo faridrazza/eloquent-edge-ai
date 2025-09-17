@@ -5,24 +5,90 @@ Build a web application that analyzes LinkedIn posts to learn user's writing sty
 Complete User Flow
 Phase 1: User Onboarding
  
-1. Landing Page
-→ User sees demo/preview of generated content
-→ Clear value proposition: "Create LinkedIn posts in your style with matching visuals"
-→ Sign up button (email/password)
+1. Landing Page → Sign up
 
-2. Account Creation
-→ Simple registration form
-→ Email verification (optional for MVP)
-→ Redirect to onboarding
+2. Welcome Screen
+→ "Welcome to PostCraft!"
+→ Two clear options:
 
-3. Onboarding Process
-→ Welcome message: "Let's learn your writing style" ( USe openai api for analyzing style)
-→ Upload interface: "Paste 4-5 of your previous LinkedIn posts"
-→ Text areas for each post (labeled Post 1, Post 2, etc.)
+[Learn My Writing Style]
+"Paste 3-5 previous posts so AI understands your unique voice"
+
+[Skip for Now]
+"Start creating posts right away (you can add your style later)"
+
+3A. If user chooses "Learn My Writing Style":
+→ Text areas for 3-5 posts
 → "Analyze My Style" button
-→ Loading screen: "AI is learning your writing patterns..."
-→ Success message: "Style analysis complete! Ready to create content."
+→ Loading: "Learning your writing patterns..."
+→ Success: "Style learned! Ready to create personalized content"
 → Redirect to dashboard
+
+3B. If user chooses "Skip for Now":
+→ Direct redirect to dashboard
+→ Dashboard shows style learning option in sidebar
+Dashboard Layout with Optional Style Feature
+Dashboard Sidebar:
+┌─────────────────────────────────┐
+│ 📝 Create New Post │
+│ 📊 My Generated Posts │
+│ ⚙️ Settings │
+│ │
+│ 🎨 Writing Style (Optional) │
+│ └─ "Teach AI your voice" │ ← Always visible if not completed
+│ [Add Your Posts] │
+│ │
+│ 💳 Credits: 25 remaining │
+└─────────────────────────────────┘
+
+Main Dashboard:
+┌─────────────────────────────────┐
+│ [Create New Post] button │
+│ │
+│ Recent Posts History... │
+└─────────────────────────────────┘
+Updated Post Generation Flow
+User clicks "Create New Post"
+↓
+Post Generation Page:
+
+┌─────────────────────────────────┐
+│ What do you want to post about? │
+│ [Text input field] │
+│ │
+│ Writing Style: │
+│ ○ Generic AI style │ ← Always available
+│ ○ My personal style │ ← Only if user uploaded posts
+│ (Based on your previous │
+│ posts analysis) │
+│ │
+│ [Generate Post] │
+└─────────────────────────────────┘
+Style Learning - Anytime Access
+Dashboard Sidebar → "Writing Style" → Click "Add Your Posts"
+↓
+Modal/New Page:
+┌─────────────────────────────────┐
+│ Teach AI Your Writing Style │
+│ │
+│ Paste 3-5 of your previous │
+│ LinkedIn posts below: │
+│ │
+│ [Post 1 text area] │
+│ [Post 2 text area] │
+│ [Post 3 text area] │
+│ [+ Add More Posts] (optional) │
+│ │
+│ [Analyze My Style] [Cancel] │
+└─────────────────────────────────┘
+
+After Analysis:
+✅ "Style learned! You can now generate posts in your personal style"
+→ Redirect back to dashboard
+→ Sidebar shows: "🎨 Writing Style: ✅ Active"
+
+
+
 Phase 2: Content Creation Flow
  
 4. Dashboard
@@ -102,130 +168,3 @@ Phase 3: Dashboard Management
 → Subscription status (Dodo payments integration)
 → Style profile settings
 → Download history
-
-Technical Requirements
-Frontend Development
-
-Landing page with demo
-Multi-step onboarding flow
-Post generation interface
-Visual selection interface
-Image gallery/preview components
-Loading states and progress indicators
-Error handling components
-Backend Development
-Framework: Node.js ,Database: PostgreSQL  Supabase ,Key Endpoints Required:
-
- 
-Authentication:
-POST /auth/register
-POST /auth/login
-GET /auth/profile
-
-Style Analysis:
-POST /api/analyze-style (accepts array of posts)
-GET /api/user-style-profile
-
-Post Generation:
-POST /api/generate-post (prompt + user_id)
-PUT /api/edit-post
-
-Visual Analysis:
-POST /api/analyze-post-structure (post content)
-POST /api/generate-visual-prompts
-
-Visual Generation:
-POST /api/generate-visuals (prompts array, style preferences)
-GET /api/generation-status/:job_id
-
-Content Management:
-GET /api/user-posts
-DELETE /api/posts/:id
-POST /api/regenerate/:post_id
-Database Schema
- 
-sql
-Users Table:
-- id (primary key)
-- email (unique)
-- password_hash
-- created_at
-- subscription_status
-- credits_remaining
-
-User_Styles Table:
-- user_id (foreign key)
-- style_data (JSON - analyzed patterns)
-- confidence_score
-- posts_analyzed
-- last_updated
-
-Generated_Posts Table:
-- id (primary key)
-- user_id (foreign key)
-- original_prompt
-- generated_content
-- post_structure (list/story/tips/etc)
-- visual_count
-- visual_style
-- created_at
-
-Generated_Visuals Table:
-- id (primary key)
-- post_id (foreign key)
-- image_url
-- prompt_used
-- generation_order
-- status (generating/completed/failed)
-
-Usage_Tracking Table:
-- user_id
-- action_type (post_generation/visual_generation)
-- credits_used
-- timestamp
-API Integrations Required
-1. OpenAI/Claude API for Text Generation
-
-Endpoint for style analysis
-Endpoint for post generation
-Endpoint for content structure analysis
-2. Nano Banana API for Visual Generation
-
-Image generation endpoint
-Status checking endpoint
-Error handling for failed generations
-3. Dodo Payments Integration
-
-Subscription management
-Credit purchase system
-Usage tracking and billing
-AI Prompt Engineering
-Style Analysis Prompt Template:
-
- 
-Analyze these LinkedIn posts and extract writing patterns:
-Posts: [user_posts_array]
-
-Return JSON with:
-- tone (professional/casual/inspirational)
-- common_topics
-- post_structure_preferences
-- engagement_patterns
-- writing_style_markers
-Post Generation Prompt Template:
-
- 
-Create a LinkedIn post about: [user_prompt]
-Writing style: [user_style_profile]
-Maintain the user's tone, structure preferences, and topic approach.
-Visual Content Analysis Prompt:
-
- 
-Analyze this LinkedIn post and determine optimal visual breakdown:
-Post: [generated_content]
-
-Return JSON with:
-- content_type (list/tips/story/process)
-- recommended_visual_count
-- individual_visual_prompts_array
-- visual_style_recommendation

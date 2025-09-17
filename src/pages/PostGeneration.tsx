@@ -7,7 +7,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { toast } from "@/hooks/use-toast";
-import { Linkedin, ArrowLeft, Loader2, Sparkles, User as UserIcon, Wand2 } from "lucide-react";
+import { Linkedin, ArrowLeft, Loader2, Sparkles, User as UserIcon, Wand2, ImageIcon } from "lucide-react";
 import { useWritingStyle } from "@/hooks/use-writing-style";
 import { usePostGeneration } from "@/hooks/use-post-generation";
 import type { User } from "@supabase/supabase-js";
@@ -21,6 +21,7 @@ const PostGeneration = () => {
   const { 
     isGenerating, 
     generatedPost, 
+    currentPostId,
     generatePost, 
     resetGeneration 
   } = usePostGeneration(user);
@@ -64,6 +65,19 @@ const PostGeneration = () => {
     setPrompt("");
     setSelectedStyle(hasStyle ? "personal" : "generic");
     resetGeneration();
+  };
+
+  const handleContinueToVisuals = () => {
+    if (!currentPostId) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "No post found to create visuals for.",
+      });
+      return;
+    }
+    
+    navigate(`/visual-strategy?postId=${currentPostId}`);
   };
 
   if (styleLoading) {
@@ -238,11 +252,42 @@ const PostGeneration = () => {
                   </div>
                   
                   <div className="flex gap-3 mt-6">
-                    <Button onClick={handleCopyPost} className="flex-1">
+                    <Button onClick={handleCopyPost} variant="outline" className="flex-1">
                       Copy to Clipboard
                     </Button>
                     <Button variant="outline" onClick={handleNewPost}>
                       Create Another Post
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Continue to Visuals */}
+              <Card className="border-2 border-primary/20 bg-gradient-to-r from-primary/5 to-primary/10">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <ImageIcon className="w-5 h-5 text-primary" />
+                    Continue to Visuals
+                  </CardTitle>
+                  <CardDescription>
+                    Create engaging visual content to accompany your post and boost engagement
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    <div className="text-sm text-muted-foreground">
+                      <p>✨ AI will analyze your post and recommend the perfect visual strategy</p>
+                      <p>🎨 Choose from infographics, quote cards, or carousel posts</p>
+                      <p>📈 Boost your LinkedIn engagement with professional visuals</p>
+                    </div>
+                    
+                    <Button 
+                      onClick={handleContinueToVisuals}
+                      className="w-full"
+                      size="lg"
+                    >
+                      <ImageIcon className="mr-2 h-5 w-5" />
+                      Continue to Visual Generation
                     </Button>
                   </div>
                 </CardContent>

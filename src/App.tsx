@@ -9,6 +9,9 @@ import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
 import Onboarding from "./pages/Onboarding";
 import PostGeneration from "./pages/PostGeneration";
+import VisualStrategy from "./pages/VisualStrategy";
+import VisualGeneration from "./pages/VisualGeneration";
+import PreviewDownload from "./pages/PreviewDownload";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -26,6 +29,9 @@ const App = () => (
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/onboarding" element={<Onboarding />} />
             <Route path="/post-generation" element={<PostGeneration />} />
+            <Route path="/visual-strategy" element={<VisualStrategy />} />
+            <Route path="/visual-generation" element={<VisualGeneration />} />
+            <Route path="/preview-download" element={<PreviewDownload />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>

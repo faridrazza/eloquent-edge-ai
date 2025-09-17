@@ -153,3 +153,16 @@ $$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
 CREATE TRIGGER on_auth_user_created
   AFTER INSERT ON auth.users
   FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
+
+-- Create function to decrement user credits
+CREATE OR REPLACE FUNCTION public.decrement_credits(
+  user_id UUID,
+  credit_amount INTEGER
+)
+RETURNS VOID AS $$
+BEGIN
+  UPDATE public.profiles 
+  SET credits_remaining = GREATEST(0, credits_remaining - credit_amount)
+  WHERE profiles.user_id = decrement_credits.user_id;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;

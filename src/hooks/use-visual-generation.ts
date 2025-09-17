@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import type { User } from "@supabase/supabase-js";
@@ -24,21 +24,97 @@ export interface VisualGenerationJob {
   results: GeneratedVisual[];
 }
 
-export const useVisualGeneration = (user: User | null) => {
+export const useVisualGeneration = (user: User | null, postId?: string) => {
   const [isGenerating, setIsGenerating] = useState(false);
   const [generationProgress, setGenerationProgress] = useState(0);
   const [currentJob, setCurrentJob] = useState<VisualGenerationJob | null>(null);
   const [generatedVisuals, setGeneratedVisuals] = useState<GeneratedVisual[]>([]);
 
+  // Fetch existing visuals when user or postId changes
+  useEffect(() => {
+    if (user && postId) {
+      fetchExistingVisualsForPost(postId);
+    } else if (user && !postId) {
+      fetchExistingVisuals();
+    }
+  }, [user, postId]);
+
+  const fetchExistingVisualsForPost = async (currentPostId: string) => {
+    if (!user) return;
+    
+    try {
+      const { data, error } = await supabase
+        .from('generated_visuals')
+        .select('*')
+        .eq('user_id', user.id)
+        .eq('post_id', currentPostId)
+        .order('generation_order');
+
+      if (error) throw error;
+      
+      const transformedVisuals: GeneratedVisual[] = data.map(visual => ({
+        id: visual.id,
+        order: visual.generation_order || 1,
+        title: `Visual ${visual.generation_order}`,
+        imageUrl: visual.image_url || '',
+        prompt: visual.prompt_used || '',
+        textOverlay: '',
+        status: visual.status as 'generating' | 'completed' | 'failed'
+      }));
+      
+      setGeneratedVisuals(transformedVisuals);
+    } catch (error) {
+      console.error('Error fetching post visuals:', error);
+    }
+  };
+
+  const fetchExistingVisuals = async () => {
+    if (!user) return;
+    
+    try {
+      const { data, error } = await supabase
+        .from('generated_visuals')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      
+      const transformedVisuals: GeneratedVisual[] = data.map(visual => ({
+        id: visual.id,
+        order: visual.generation_order || 1,
+        title: `Visual ${visual.generation_order}`,
+        imageUrl: visual.image_url || '',
+        prompt: visual.prompt_used || '',
+        textOverlay: '',
+        status: visual.status as 'generating' | 'completed' | 'failed'
+      }));
+      
+      setGeneratedVisuals(transformedVisuals);
+    } catch (error) {
+      console.error('Error fetching existing visuals:', error);
+    }
+  };
+
   const startVisualGeneration = async (
     postId: string,
-    visualPrompts: any[]
+    visualPrompts: any[],
+    postContent?: string
   ): Promise<boolean> => {
     if (!user) {
       toast({
         variant: "destructive",
         title: "Authentication error",
         description: "Please sign in to generate visuals.",
+      });
+      return false;
+    }
+
+    if (!visualPrompts || visualPrompts.length === 0) {
+      toast({
+        variant: "destructive",
+        title: "No prompts available",
+        description: "Visual prompts are required for generation.",
       });
       return false;
     }
@@ -64,43 +140,87 @@ export const useVisualGeneration = (user: User | null) => {
       job.status = 'running';
       setCurrentJob({ ...job });
 
+      console.log('Calling generate-visuals function with:', {
+        postId,
+        userId: user.id,
+        visualPrompts,
+        jobId
+      });
+
+      // Start monitoring progress during generation
+      const progressInterval = setInterval(async () => {
+        if (!postId) return;
+        
+        try {
+          const { data: visualsData } = await supabase
+            .from('generated_visuals')
+            .select('status')
+            .eq('post_id', postId)
+            .eq('user_id', user.id);
+          
+          if (visualsData) {
+            const completed = visualsData.filter(v => v.status === 'completed').length;
+            const failed = visualsData.filter(v => v.status === 'failed').length;
+            const progress = Math.round((completed / visualPrompts.length) * 100);
+            
+            setGenerationProgress(progress);
+            setCurrentJob(prev => prev ? {
+              ...prev,
+              completedVisuals: completed,
+              failedVisuals: failed
+            } : null);
+          }
+        } catch (error) {
+          console.error('Error checking progress:', error);
+        }
+      }, 1000); // Check every second
+
       const { data, error } = await supabase.functions.invoke('generate-visuals', {
         body: {
           postId,
           userId: user.id,
           visualPrompts,
-          jobId
+          jobId,
+          postContent  // Pass post content for more context-aware generation
         }
       });
 
-      if (error) throw error;
+      // Clear progress monitoring
+      clearInterval(progressInterval);
 
-      if (!data.success) {
-        throw new Error(data.error || 'Failed to generate visuals');
+      console.log('Generate-visuals response:', { data, error });
+
+      if (error) {
+        console.error('Supabase function error:', error);
+        throw error;
+      }
+
+      if (!data || !data.success) {
+        throw new Error(data?.error || 'Failed to generate visuals');
       }
 
       // Update job with results
       job.status = 'completed';
-      job.completedVisuals = data.totalGenerated;
-      job.failedVisuals = data.totalFailed;
-      job.results = data.results;
+      job.completedVisuals = data.totalGenerated || 0;
+      job.failedVisuals = data.totalFailed || 0;
+      job.results = data.results || [];
       
       setCurrentJob({ ...job });
-      setGeneratedVisuals(data.results);
+      setGeneratedVisuals(data.results || []);
       setGenerationProgress(100);
 
       // Update the post record with visual count
       await supabase
         .from('generated_posts')
         .update({
-          visual_count: data.totalGenerated,
+          visual_count: data.totalGenerated || 0,
           visual_style: visualPrompts[0]?.designNotes || 'mixed'
         })
         .eq('id', postId);
 
       toast({
         title: "Visuals generated!",
-        description: `Successfully created ${data.totalGenerated} visuals for your post.`,
+        description: `Successfully created ${data.totalGenerated || 0} visuals for your post.`,
       });
 
       return true;
@@ -115,7 +235,7 @@ export const useVisualGeneration = (user: User | null) => {
       toast({
         variant: "destructive",
         title: "Generation failed",
-        description: "There was an error generating your visuals. Please try again.",
+        description: error.message || "There was an error generating your visuals. Please try again.",
       });
       return false;
     } finally {
@@ -247,7 +367,7 @@ export const useVisualGeneration = (user: User | null) => {
     setIsGenerating(false);
   };
 
-  return {
+    return {
     isGenerating,
     generationProgress,
     currentJob,
@@ -256,6 +376,7 @@ export const useVisualGeneration = (user: User | null) => {
     regenerateVisual,
     downloadVisual,
     downloadAllVisuals,
-    resetGeneration
+    resetGeneration,
+    fetchExistingVisualsForPost
   };
 };
