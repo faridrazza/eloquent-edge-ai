@@ -9,16 +9,21 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "@/hooks/use-toast";
 import { Linkedin, ArrowLeft, Loader2, Sparkles, User as UserIcon, Wand2 } from "lucide-react";
 import { useWritingStyle } from "@/hooks/use-writing-style";
+import { usePostGeneration } from "@/hooks/use-post-generation";
 import type { User } from "@supabase/supabase-js";
 
 const PostGeneration = () => {
   const [user, setUser] = useState<User | null>(null);
   const [prompt, setPrompt] = useState("");
   const [selectedStyle, setSelectedStyle] = useState("generic");
-  const [isGenerating, setIsGenerating] = useState(false);
-  const [generatedPost, setGeneratedPost] = useState("");
   const navigate = useNavigate();
   const { hasStyle, isLoading: styleLoading } = useWritingStyle(user);
+  const { 
+    isGenerating, 
+    generatedPost, 
+    generatePost, 
+    resetGeneration 
+  } = usePostGeneration(user);
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -43,82 +48,8 @@ const PostGeneration = () => {
       return;
     }
 
-    if (!user) {
-      toast({
-        variant: "destructive",
-        title: "Authentication error",
-        description: "Please sign in to generate posts.",
-      });
-      return;
-    }
-
-    setIsGenerating(true);
-
-    try {
-      // Simulate AI generation process
-      await new Promise(resolve => setTimeout(resolve, 3000));
-
-      // Mock generated content based on style
-      const mockGeneratedPost = selectedStyle === "personal" 
-        ? `🚀 Here's my take on ${prompt}:
-
-Based on my experience, I've learned that ${prompt.toLowerCase()} is crucial for growth. Here are 3 key insights:
-
-1. Start with understanding your audience
-2. Focus on providing genuine value
-3. Stay consistent with your message
-
-What's been your experience with ${prompt.toLowerCase()}? I'd love to hear your thoughts!
-
-#Growth #Tips #LinkedInTips`
-        : `💡 Let's talk about ${prompt}:
-
-${prompt} is an important topic that affects many professionals today. Here are some key considerations:
-
-• Understanding the fundamentals
-• Implementing best practices  
-• Measuring your progress
-• Continuous improvement
-
-This approach has proven effective across various industries and can help you achieve better results.
-
-What strategies have worked best for you?
-
-#Professional #Tips #Success`;
-
-      // Store in database
-      const { error } = await supabase
-        .from("generated_posts")
-        .insert({
-          user_id: user.id,
-          original_prompt: prompt,
-          generated_content: mockGeneratedPost,
-          post_structure: selectedStyle === "personal" ? "personal_experience" : "generic_tips",
-          visual_count: 0,
-          visual_style: null
-        });
-
-      if (error) {
-        throw error;
-      }
-
-      setGeneratedPost(mockGeneratedPost);
-
-      toast({
-        title: "Post generated successfully!",
-        description: "Your LinkedIn post is ready. You can copy and customize it as needed.",
-      });
-
-    } catch (error) {
-      console.error("Error generating post:", error);
-      toast({
-        variant: "destructive",
-        title: "Generation failed",
-        description: "There was an error generating your post. Please try again.",
-      });
-    } finally {
-      setIsGenerating(false);
-    }
+    const usePersonalStyle = selectedStyle === "personal";
+    await generatePost(prompt, usePersonalStyle);
   };
 
   const handleCopyPost = () => {
@@ -132,7 +63,7 @@ What strategies have worked best for you?
   const handleNewPost = () => {
     setPrompt("");
     setSelectedStyle(hasStyle ? "personal" : "generic");
-    setGeneratedPost("");
+    resetGeneration();
   };
 
   if (styleLoading) {

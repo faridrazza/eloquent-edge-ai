@@ -68,6 +68,24 @@ serve(async (req) => {
       `You are a LinkedIn content creator who writes in the user's specific style. Create engaging LinkedIn posts that match the user's writing patterns exactly.` :
       `You are a professional LinkedIn content creator. Create engaging, professional LinkedIn posts that drive engagement and provide value.`;
 
+    // Extract specific style instructions from the prompt
+    const promptLower = prompt.toLowerCase();
+    let specificInstructions = "";
+    
+    if (promptLower.includes("ghostwriter") || promptLower.includes("ghost writer")) {
+      specificInstructions += "\n- Write in a professional ghostwriter style: authoritative, polished, and engaging";
+    }
+    
+    if (promptLower.includes("story") || promptLower.includes("storytelling")) {
+      specificInstructions += "\n- Use storytelling format: start with a hook, include personal narrative, and end with a lesson or insight";
+      specificInstructions += "\n- Make it personal and relatable, showing vulnerability and growth";
+    }
+    
+    if (promptLower.includes("viral") || promptLower.includes("followers")) {
+      specificInstructions += "\n- Focus on growth strategies and actionable insights";
+      specificInstructions += "\n- Use specific numbers and concrete examples";
+    }
+
     const contentPrompt = `
     Create a LinkedIn post about: "${prompt}"
 
@@ -81,6 +99,9 @@ serve(async (req) => {
     - Include a call-to-action question or engagement prompt
     - Structure the content for readability (use line breaks, bullet points if needed)
     ${usePersonalStyle ? '- Mirror the user\'s tone, vocabulary level, and engagement style' : ''}
+    ${specificInstructions}
+
+    IMPORTANT: Follow the exact style and format specified in the user's prompt. If they mention "ghostwriter style" or "storytelling way", prioritize those instructions above all else.
 
     Return only the post content, ready to be published on LinkedIn.
     `;
