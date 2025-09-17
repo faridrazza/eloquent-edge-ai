@@ -1,1 +1,33 @@
 project_id = "ynonkdzachhpgynbkuck"
+
+[api]
+enabled = true
+port = 54321
+schemas = ["public", "graphql_public"]
+extra_search_path = ["public", "extensions"]
+max_rows = 1000
+
+[auth]
+enabled = true
+port = 54324
+site_url = "http://localhost:3000"
+additional_redirect_urls = ["https://localhost:3000"]
+jwt_expiry = 3600
+refresh_token_rotation_enabled = true
+secure_password_change_enabled = false
+enable_manual_linking = false
+
+[functions.analyze-style]
+verify_jwt = true
+
+[functions.generate-post]
+verify_jwt = true
+
+[functions.analyze-post-structure]
+verify_jwt = true
+
+[functions.generate-visual-prompts]
+verify_jwt = true
+
+[functions.generate-visuals]
+verify_jwt = true

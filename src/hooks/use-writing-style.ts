@@ -72,28 +72,33 @@ export const useWritingStyle = (user: User | null) => {
     }
 
     try {
-      const mockStyleData: StyleAnalysisData = {
-        tone: "professional",
-        common_topics: ["growth", "tips", "insights"],
-        post_structure_preferences: ["lists", "stories"],
-        engagement_patterns: ["questions", "calls_to_action"],
-        writing_style_markers: ["concise", "actionable"],
-        analyzed_posts: posts,
-        posts_count: posts.length
-      };
+      // Call the analyze-style edge function
+      const { data, error } = await supabase.functions.invoke('analyze-style', {
+        body: {
+          posts,
+          userId: user.id
+        }
+      });
 
-      const { error } = await supabase
+      if (error) throw error;
+
+      if (!data.success) {
+        throw new Error(data.error || 'Failed to analyze writing style');
+      }
+
+      // Store the analysis results in the database
+      const { error: insertError } = await supabase
         .from("user_styles")
         .upsert({
           user_id: user.id,
-          style_data: mockStyleData,
-          confidence_score: 0.85,
+          style_data: data.styleData,
+          confidence_score: data.confidence_score,
           posts_analyzed: posts.length,
           last_updated: new Date().toISOString()
         });
 
-      if (error) {
-        throw error;
+      if (insertError) {
+        throw insertError;
       }
 
       await fetchUserStyle(); // Refresh the style data
