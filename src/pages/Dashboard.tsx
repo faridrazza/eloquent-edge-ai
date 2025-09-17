@@ -143,7 +143,11 @@ const Dashboard = () => {
                       <Plus className="w-4 h-4 mr-3" />
                       Create New Post
                     </Button>
-                    <Button variant="ghost" className="w-full justify-start" disabled>
+                    <Button 
+                      variant="ghost" 
+                      className="w-full justify-start" 
+                      onClick={() => navigate("/my-posts")}
+                    >
                       <FileText className="w-4 h-4 mr-3" />
                       My Generated Posts
                     </Button>
@@ -260,9 +264,12 @@ const Dashboard = () => {
                       </CardDescription>
                     </CardHeader>
                     <CardContent>
-                      <Button variant="outline" className="w-full" disabled>
+                      <Button 
+                        variant="outline" 
+                        className="w-full" 
+                        onClick={() => navigate("/my-posts")}
+                      >
                         View History
-                        <span className="ml-2 text-xs text-muted-foreground">(Coming Soon)</span>
                       </Button>
                     </CardContent>
                   </Card>

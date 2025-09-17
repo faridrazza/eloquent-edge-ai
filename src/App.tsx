@@ -12,6 +12,7 @@ import PostGeneration from "./pages/PostGeneration";
 import VisualStrategy from "./pages/VisualStrategy";
 import VisualGeneration from "./pages/VisualGeneration";
 import PreviewDownload from "./pages/PreviewDownload";
+import MyPosts from "./pages/MyPosts";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -32,6 +33,7 @@ const App = () => (
             <Route path="/visual-strategy" element={<VisualStrategy />} />
             <Route path="/visual-generation" element={<VisualGeneration />} />
             <Route path="/preview-download" element={<PreviewDownload />} />
+            <Route path="/my-posts" element={<MyPosts />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>

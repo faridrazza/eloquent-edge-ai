@@ -65,8 +65,8 @@ serve(async (req) => {
     }
 
     const systemPrompt = usePersonalStyle && styleContext ? 
-      `You are a LinkedIn content creator who writes in the user's specific style. Create engaging LinkedIn posts that match the user's writing patterns exactly.` :
-      `You are a professional LinkedIn content creator. Create engaging, professional LinkedIn posts that drive engagement and provide value.`;
+      `You are a professional LinkedIn ghostwriter who writes in the user's specific style. Create sophisticated, professional LinkedIn posts that match the user's writing patterns exactly. Write like a senior executive or thought leader - no emojis, no markdown symbols, no asterisks, no dashes for formatting. Use clean, professional prose.` :
+      `You are a professional LinkedIn ghostwriter and thought leader. Write sophisticated, executive-level LinkedIn posts that establish authority and credibility. Write in clean, professional prose without any emojis, symbols, or markdown formatting. Focus on substance, insights, and professional value.`;
 
     // Extract specific style instructions from the prompt
     const promptLower = prompt.toLowerCase();
@@ -87,23 +87,31 @@ serve(async (req) => {
     }
 
     const contentPrompt = `
-    Create a LinkedIn post about: "${prompt}"
+    Create a professional LinkedIn post about: "${prompt}"
 
     ${styleContext}
 
-    Requirements:
-    - Write in an engaging, professional tone ${usePersonalStyle ? 'that matches the user\'s style above' : ''}
-    - Include relevant emojis where appropriate ${usePersonalStyle && styleContext.includes('emoji') ? '(match the user\'s emoji style)' : ''}
-    - Add appropriate hashtags (3-5 relevant hashtags)
-    - Make it 150-300 words
-    - Include a call-to-action question or engagement prompt
-    - Structure the content for readability (use line breaks, bullet points if needed)
-    ${usePersonalStyle ? '- Mirror the user\'s tone, vocabulary level, and engagement style' : ''}
+    PROFESSIONAL WRITING REQUIREMENTS:
+    - Write as a senior executive, thought leader, or industry expert
+    - Use sophisticated, professional language that establishes credibility
+    - NO emojis, NO symbols, NO asterisks (*), NO dashes (---), NO markdown formatting
+    - Write in clean, readable prose with proper paragraphs
+    - Focus on insights, strategy, and professional value
+    - Include 3-5 relevant hashtags at the end (simple format: #HashtagName)
+    - Length: 150-300 words
+    - End with a thoughtful question to encourage professional discussion
+    ${usePersonalStyle ? '- Mirror the user\'s professional tone and expertise level' : ''}
     ${specificInstructions}
 
-    IMPORTANT: Follow the exact style and format specified in the user's prompt. If they mention "ghostwriter style" or "storytelling way", prioritize those instructions above all else.
+    FORMATTING STYLE:
+    - Use simple paragraph breaks for readability
+    - If listing points, use simple numbered format (1. 2. 3.) or natural paragraph flow
+    - Write like you would in a professional business communication
+    - No decorative elements, symbols, or visual formatting
 
-    Return only the post content, ready to be published on LinkedIn.
+    TONE: Professional, authoritative, insightful, and engaging without being flashy
+
+    Return only the clean, professional post content ready for LinkedIn publication.
     `;
 
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
