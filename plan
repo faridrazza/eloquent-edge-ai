@@ -1,0 +1,231 @@
+Project Overview
+Build a web application that analyzes LinkedIn posts to learn user's writing style, generates personalized content, and creates matching visual assets (infographics and images) using AI.
+
+
+Complete User Flow
+Phase 1: User Onboarding
+ 
+1. Landing Page
+→ User sees demo/preview of generated content
+→ Clear value proposition: "Create LinkedIn posts in your style with matching visuals"
+→ Sign up button (email/password)
+
+2. Account Creation
+→ Simple registration form
+→ Email verification (optional for MVP)
+→ Redirect to onboarding
+
+3. Onboarding Process
+→ Welcome message: "Let's learn your writing style" ( USe openai api for analyzing style)
+→ Upload interface: "Paste 4-5 of your previous LinkedIn posts"
+→ Text areas for each post (labeled Post 1, Post 2, etc.)
+→ "Analyze My Style" button
+→ Loading screen: "AI is learning your writing patterns..."
+→ Success message: "Style analysis complete! Ready to create content."
+→ Redirect to dashboard
+Phase 2: Content Creation Flow
+ 
+4. Dashboard
+→ Clean interface with "Create New Post" button
+→ History section showing previous generated content
+→ User profile/settings in header
+→ Credit balance display (for Dodo payments)
+
+5. Post Generation
+→ Input field: "What do you want to post about?"
+→ Placeholder examples: "5 tips for LinkedIn growth", "My startup journey"
+→ Generate button
+→ Loading: "Creating your post..."
+→ Generated post displayed in editable text area
+→ Edit/Regenerate options
+→ "Continue to Visuals" button
+
+6. Visual Strategy Decision
+→ AI analysis results displayed:
+"Your post is about '5 Tips to Go Viral on LinkedIn'"
+"AI detected: List format with 5 key points"
+
+→ Recommendation box:
+"AI Recommendation: 6 images (1 intro + 5 tip cards)"
+"Estimated credits: 6 credits"
+
+→ Format selection (radio buttons):
+○ Single Infographic (all content in one image) - 1 credit
+○ Carousel Post (6 separate images) - 6 credits ← AI recommended
+○ Custom (let me choose number of images)
+
+→ If "Custom" selected:
+- Slider/input: "How many images? (1-10)"
+- Credit cost updates dynamically
+
+→ Visual style selection:
+○ Infographics (data-focused, clean design)
+○ Quote Cards (bold text, minimal design)
+○ Mixed Style (combination approach)
+
+→ Preview summary: "You'll receive: 6 infographic images for your carousel"
+→ "Generate Visuals" button
+
+7. Visual Generation Process
+→ Loading screen: "Creating your visuals..." with progress bar
+→ Show individual image generation progress:
+"✓ Intro image complete"
+"⏳ Tip 1 image generating..."
+"⏳ Tip 2 image pending..."
+→ Allow cancellation during generation
+→ Error handling: "Generation failed - try different style"
+
+8. Preview & Download
+→ Display all generated visuals in grid/carousel view
+→ Individual image options for each visual:
+- Download individual image
+- Regenerate this image
+- Edit prompt for this image
+→ Bulk actions:
+- Download all as ZIP
+- Regenerate entire set
+- Share preview link
+→ Post text displayed alongside visuals
+→ "Create Another Post" button
+Phase 3: Dashboard Management
+ 
+9. Content History
+→ List of all generated posts with:
+- Post title/topic
+- Generation date
+- Format (single/carousel)
+- Number of images
+- Actions: Download, Regenerate, Delete
+
+10. Account Management
+→ Credit balance and usage history
+→ Subscription status (Dodo payments integration)
+→ Style profile settings
+→ Download history
+
+Technical Requirements
+Frontend Development
+
+Landing page with demo
+Multi-step onboarding flow
+Post generation interface
+Visual selection interface
+Image gallery/preview components
+Loading states and progress indicators
+Error handling components
+Backend Development
+Framework: Node.js ,Database: PostgreSQL  Supabase ,Key Endpoints Required:
+
+ 
+Authentication:
+POST /auth/register
+POST /auth/login
+GET /auth/profile
+
+Style Analysis:
+POST /api/analyze-style (accepts array of posts)
+GET /api/user-style-profile
+
+Post Generation:
+POST /api/generate-post (prompt + user_id)
+PUT /api/edit-post
+
+Visual Analysis:
+POST /api/analyze-post-structure (post content)
+POST /api/generate-visual-prompts
+
+Visual Generation:
+POST /api/generate-visuals (prompts array, style preferences)
+GET /api/generation-status/:job_id
+
+Content Management:
+GET /api/user-posts
+DELETE /api/posts/:id
+POST /api/regenerate/:post_id
+Database Schema
+ 
+sql
+Users Table:
+- id (primary key)
+- email (unique)
+- password_hash
+- created_at
+- subscription_status
+- credits_remaining
+
+User_Styles Table:
+- user_id (foreign key)
+- style_data (JSON - analyzed patterns)
+- confidence_score
+- posts_analyzed
+- last_updated
+
+Generated_Posts Table:
+- id (primary key)
+- user_id (foreign key)
+- original_prompt
+- generated_content
+- post_structure (list/story/tips/etc)
+- visual_count
+- visual_style
+- created_at
+
+Generated_Visuals Table:
+- id (primary key)
+- post_id (foreign key)
+- image_url
+- prompt_used
+- generation_order
+- status (generating/completed/failed)
+
+Usage_Tracking Table:
+- user_id
+- action_type (post_generation/visual_generation)
+- credits_used
+- timestamp
+API Integrations Required
+1. OpenAI/Claude API for Text Generation
+
+Endpoint for style analysis
+Endpoint for post generation
+Endpoint for content structure analysis
+2. Nano Banana API for Visual Generation
+
+Image generation endpoint
+Status checking endpoint
+Error handling for failed generations
+3. Dodo Payments Integration
+
+Subscription management
+Credit purchase system
+Usage tracking and billing
+AI Prompt Engineering
+Style Analysis Prompt Template:
+
+ 
+Analyze these LinkedIn posts and extract writing patterns:
+Posts: [user_posts_array]
+
+Return JSON with:
+- tone (professional/casual/inspirational)
+- common_topics
+- post_structure_preferences
+- engagement_patterns
+- writing_style_markers
+Post Generation Prompt Template:
+
+ 
+Create a LinkedIn post about: [user_prompt]
+Writing style: [user_style_profile]
+Maintain the user's tone, structure preferences, and topic approach.
+Visual Content Analysis Prompt:
+
+ 
+Analyze this LinkedIn post and determine optimal visual breakdown:
+Post: [generated_content]
+
+Return JSON with:
+- content_type (list/tips/story/process)
+- recommended_visual_count
+- individual_visual_prompts_array
+- visual_style_recommendation
