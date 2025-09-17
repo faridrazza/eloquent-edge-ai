@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { toast } from "@/hooks/use-toast";
-import { Linkedin, ArrowLeft, Loader2, Image, Grid3X3, Palette, BarChart3, Quote, Sparkles, CreditCard } from "lucide-react";
+import { Linkedin, ArrowLeft, Loader2, Image, Grid3X3, Palette, BarChart3, Quote, Sparkles, CreditCard, Layers } from "lucide-react";
 import { usePostGeneration } from "@/hooks/use-post-generation";
 import type { User } from "@supabase/supabase-js";
 
@@ -134,6 +134,12 @@ const VisualStrategy = () => {
       name: "Quote Cards",
       description: "Bold text, minimal design for high impact",
       icon: Quote
+    },
+    {
+      id: "carousel",
+      name: "Carousel",
+      description: "LinkedIn carousel-optimized design with storytelling flow",
+      icon: Layers
     },
     {
       id: "mixed",
